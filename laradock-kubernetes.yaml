@@ -1,0 +1,30 @@
+kind: Pod
+apiVersion: v1
+metadata:
+    name: laradock-kubernetes
+spec:
+    volumes:
+        -
+            name: shared-files
+            emptyDir: {}
+
+    containers:
+         -
+            image: 'laradock-workspace:latest'
+            name: laradock-workspace
+            volumeMounts: [{name: shared-files, mountPath: /var/www}]
+            lifecycle:
+               postStart:
+                  exec:
+                      command: ["/bin/sh", "-c", "cp -r /app/. /var/www"]
+    
+            image: 'laradock-php-fpm:latest'
+            name: laradock-php-fpm
+            volumeMounts: [{name: shared-files, mountPath: /var/www}]
+
+         -
+            image: 'laradock-nginx:latest'
+            name: toolbox-nginx
+            volumeMounts: [{name: shared-files, mountPath: /var/www}]
+            ports:
+              - containerPort: 80
