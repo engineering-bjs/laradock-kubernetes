@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "laradock-kubernetes.fullname" . }}-worker
+  labels:
+{{ include "laradock-kubernetes.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "laradock-kubernetes.name" . }}-worker
+      app.kubernetes.io/instance: {{ .Release.Name }}-worker
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+      labels:
+        app.kubernetes.io/name: {{ include "laradock-kubernetes.name" . }}-worker
+        app.kubernetes.io/instance: {{ .Release.Name }}-worker
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: {{ include "laradock-kubernetes.fullname" . }}-worker-shared-files
+          emptyDir: {}
+      containers:
+        - name: {{ include "laradock-kubernetes.workspace" . }}
+          image: "{{ .Values.workspace.image.repository }}:{{ .Values.workspace.image.tag }}"
+          imagePullPolicy: {{ .Values.workspace.image.pullPolicy }}
+          volumeMounts: [{name: {{ include "laradock-kubernetes.fullname" . }}-worker-shared-files, mountPath: /var/www}]
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "cp -r /app/. /var/www && php /var/www/create_env.php && php /var/www/artisan config:clear && chmod 777 -R /var/www/storage"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          envFrom:
+            - secretRef:
+                name: {{ template "laradock-kubernetes.fullname" . }}-secrets
+
+            - secretRef:
+                name: {{ template "laradock-kubernetes.fullname" . }}-config
+
+        - name: {{ include "laradock-kubernetes.phpworker" . }}
+          image: "{{ .Values.phpworker.image.repository }}:{{ .Values.phpworker.image.tag }}"
+          volumeMounts: [{name: {{ include "laradock-kubernetes.fullname" . }}-worker-shared-files, mountPath: /var/www}]
+          imagePullPolicy: {{ .Values.phpworker.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+
+    {{- with .Values.nodeSelector }}
+    nodeSelector:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+    affinity:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+    tolerations:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}

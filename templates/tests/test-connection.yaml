@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "laradock-kubernetes.fullname" . }}-test-connection"
+  labels:
+{{ include "laradock-kubernetes.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['{{ include "laradock-kubernetes.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
