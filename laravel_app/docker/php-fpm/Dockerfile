@@ -249,7 +249,7 @@ RUN if [ ${INSTALL_XDEBUG} = false -a ${INSTALL_BLACKFIRE} = true ]; then \
 # PHP REDIS EXTENSION
 ###########################################################################
 
-ARG INSTALL_PHPREDIS=false
+ARG INSTALL_PHPREDIS=true
 
 RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
     # Install Php Redis Extension

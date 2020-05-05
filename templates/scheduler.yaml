@@ -33,7 +33,7 @@ spec:
           lifecycle:
             postStart:
               exec:
-                command: ["/bin/sh", "-c", "cp -r /app/. /var/www && php /var/www/create_env.php && php /var/www/artisan config:clear && chmod 777 -R /var/www/storage && cp /var/www/crontab /etc/cron.d && chmod -R 644 /etc/cron.d"]
+                command: ["/bin/sh", "-c", "cp -r /app/. /var/www && php /var/www/create_env.php && php /var/www/artisan config:clear && chmod 777 -R /var/www/storage && cp -r /var/www/crontab/laradock /etc/cron.d && chmod -R 644 /etc/cron.d"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 

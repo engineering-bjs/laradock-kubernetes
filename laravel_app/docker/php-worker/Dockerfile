@@ -166,13 +166,14 @@ RUN if [ $INSTALL_GHOSTSCRIPT = true ]; then \
 ;fi
 
 # Install Redis package:
-ARG INSTALL_REDIS=false
+ARG INSTALL_REDIS=true
 RUN if [ ${INSTALL_REDIS} = true ]; then \
     # Install Redis Extension
     printf "\n" | pecl install -o -f redis \
     &&  rm -rf /tmp/pear \
     &&  docker-php-ext-enable redis \
 ;fi
+
 
 ###########################################################################
 # Swoole EXTENSION

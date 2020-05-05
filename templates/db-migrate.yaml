@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "laradock-kubernetes.fullname" . }}
+  labels:
+{{ include "laradock-kubernetes.labels" . | indent 4 }}
+annotations:
+  "helm.sh/hook": pre-install,pre-upgrade
+  "helm.sh/hook-delete-policy": hook-succeeded
+
+spec:
+  template:
+    metadata:
+      name: {{ include "laradock-kubernetes.name" . }}
+      labels:
+        app.kubernetes.io/managed-by: {{.Release.Service | quote }}
+        app.kubernetes.io/instance: {{.Release.Name | quote }}
+        helm.sh/chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Never
+      volumes:
+        - name: {{ include "laradock-kubernetes.fullname" . }}-shared-files
+          emptyDir: {}
+      containers:
+        - name: {{ include "laradock-kubernetes.workspace" . }}
+          image: "{{ .Values.workspace.image.repository }}:{{ .Values.workspace.image.tag }}"
+          imagePullPolicy: {{ .Values.workspace.image.pullPolicy }}
+          volumeMounts: [{name: {{ include "laradock-kubernetes.fullname" . }}-shared-files, mountPath: /var/www}]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "cp -r /app/. /var/www && php /var/www/create_env.php && php /var/www/artisan config:clear && chmod 777 -R /var/www/storage && php artisan migrate --no-interaction"]
+
+          envFrom:
+            - secretRef:
+                name: {{ template "laradock-kubernetes.fullname" . }}-secrets
+
+            - secretRef:
+                name: {{ template "laradock-kubernetes.fullname" . }}-config
+
