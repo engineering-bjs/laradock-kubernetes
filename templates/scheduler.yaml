@@ -44,15 +44,6 @@ spec:
             - secretRef:
                 name: {{ template "laradock-kubernetes.fullname" . }}-config
 
-        - name: {{ include "laradock-kubernetes.phpfpm" . }}
-          image: "{{ .Values.phpfpm.image.repository }}:{{ .Values.phpfpm.image.tag }}"
-          volumeMounts: [{name: {{ include "laradock-kubernetes.fullname" . }}-scheduler-shared-files, mountPath: /var/www}]
-          imagePullPolicy: {{ .Values.phpfpm.image.pullPolicy }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-
-
-
     {{- with .Values.nodeSelector }}
     nodeSelector:
       {{- toYaml . | nindent 8 }}
