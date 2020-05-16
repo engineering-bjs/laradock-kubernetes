@@ -6,6 +6,9 @@ replicaCount: 1
 budget:
   minAvailable : 1
 
+scheduler: 1
+worker: 1
+
 workspace:
   image:
     repository: anishdhanka/workspace

@@ -304,4 +304,49 @@ mysql> select * from redis_logs \G;
 created_at: NULL
 updated_at: NULL
 1 row in set (0.00 sec)
+
+
+## Laravel REDIS Session 
+
+## check laravel_app/app/Http/Controllers/SessionTestController.php
+
+class SessionTestController extends Controller
+{
+    protected $data = array();
+
+    public function store(Request $request)
+    {
+        $this->data = $request->all();
+        $request->session()->put('data', json_encode($this->data));
+        return response()->json(['message' => 'session added successfully']);
+    }
+
+
+    public function index(Request $request)
+    {
+        if ($request->session()->exists('data')) {
+            $this->data = json_decode($request->session()->get('data'));
+
+        }
+        return response()->json(['data' => $this->data]);
+    }
+}
+
+# set session
+curl --location --request POST 'http://127.0.0.1:8000/session' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"name":"anish",
+"email":"anish.mourya5@gmail.com"
+}'
+
+# get session
+
+curl --location --request GET 'http://127.0.0.1:8000/session' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"name":"anish",
+"email":"anish.mourya5@gmail.com"
+}'
+
 ```

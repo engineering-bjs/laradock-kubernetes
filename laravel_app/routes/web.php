@@ -19,3 +19,6 @@ Route::get('/', function () {
 
 
 Route::post('/redis-queue-test', 'RedisTestQueueController@store');
+
+Route::post('/session', 'SessionTestController@store');
+Route::get('/session', 'SessionTestController@index');
