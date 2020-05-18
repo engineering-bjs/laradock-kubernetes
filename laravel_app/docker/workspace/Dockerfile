@@ -24,7 +24,7 @@ RUN rm /var/log/lastlog /var/log/faillog
 # Mandatory Software's Installation
 #--------------------------------------------------------------------------
 #
-# Mandatory Software's such as ("php7.2-cli", "git", "vim", ....) are
+# Mandatory Software's such as ("php7.4-cli", "git", "vim", ....) are
 # installed on the base image 'laradock/workspace' image. If you want
 # to add more Software's or remove existing one, you need to edit the
 # base image (https://github.com/Laradock/workspace).
@@ -180,11 +180,11 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
     # Load the xdebug extension only with phpunit commands
     apt-get update && \
     apt-get install -y --force-yes php7.4-xdebug && \
-    sed -i 's/^;//g' /etc/php/7.2/cli/conf.d/20-xdebug.ini && \
+    sed -i 's/^;//g' /etc/php/7.4/cli/conf.d/20-xdebug.ini && \
     echo "alias phpunit='php -dzend_extension=xdebug.so /var/www/vendor/bin/phpunit'" >> ~/.bashrc \
 ;fi
 # ADD for REMOTE debugging
-COPY ./docker/workspace/xdebug.ini /etc/php/7.2/cli/conf.d/xdebug.ini
+COPY ./docker/workspace/xdebug.ini /etc/php/7.4/cli/conf.d/xdebug.ini
 
 #####################################
 # Blackfire:
@@ -235,8 +235,8 @@ ENV INSTALL_MONGO ${INSTALL_MONGO}
 RUN if [ ${INSTALL_MONGO} = true ]; then \
     # Install the mongodb extension
     pecl -q install mongodb && \
-    echo "extension=mongodb.so" >> /etc/php/7.2/mods-available/mongodb.ini && \
-    ln -s /etc/php/7.2/mods-available/mongodb.ini /etc/php/7.2/cli/conf.d/30-mongodb.ini \
+    echo "extension=mongodb.so" >> /etc/php/7.4/mods-available/mongodb.ini && \
+    ln -s /etc/php/7.4/mods-available/mongodb.ini /etc/php/7.4/cli/conf.d/30-mongodb.ini \
 ;fi
 
 #####################################
@@ -248,12 +248,12 @@ ENV INSTALL_AMQP ${INSTALL_AMQP}
 RUN if [ ${INSTALL_AMQP} = true ]; then \
     apt-get install librabbitmq-dev -y && \
     pecl -q install amqp && \
-    echo "extension=amqp.so" >> /etc/php/7.2/mods-available/amqp.ini && \
-    ln -s /etc/php/7.2/mods-available/amqp.ini /etc/php/7.2/cli/conf.d/30-amqp.ini \
+    echo "extension=amqp.so" >> /etc/php/7.4/mods-available/amqp.ini && \
+    ln -s /etc/php/7.4/mods-available/amqp.ini /etc/php/7.4/cli/conf.d/30-amqp.ini \
 ;fi
 
 #####################################
-# PHP REDIS EXTENSION FOR PHP 7.2
+# PHP REDIS EXTENSION FOR PHP 7.4
 #####################################
 
 ARG INSTALL_PHPREDIS=true
